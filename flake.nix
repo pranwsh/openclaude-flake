@@ -6,8 +6,14 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
@@ -16,7 +22,7 @@
         # real hash — paste it here, then build succeeds and is cached forever.
         src = pkgs.fetchgit {
           url = "https://node.gitlawb.com/z6MkqDnb7Siv3Cwj7pGJq4T5EsUisECqR8KpnDLwcaZq5TPr/openclaude.git";
-          hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+          hash = "sha256-OhNyDHgtfhNDb2hWMIkPiQ3SkiKkvp6IYfcSd8XqpGo=";
           # Uncomment if the repo uses submodules:
           # fetchSubmodules = true;
         };
@@ -47,7 +53,7 @@
 
           outputHashMode = "recursive";
           outputHashAlgo = "sha256";
-          outputHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+          outputHash = "sha256-IFjSEccSOBnbuVCRGbR+rcmAEPCIhnpIX73pacAi5q4=";
         };
 
         # ── Step 2: build OpenClaude (sandboxed, uses pre-fetched deps) ───────
@@ -60,7 +66,7 @@
             pkgs.bun
             pkgs.nodejs
             pkgs.makeWrapper
-            pkgs.ripgrep   # openclaude requires `rg` on PATH at runtime
+            pkgs.ripgrep # openclaude requires `rg` on PATH at runtime
           ];
 
           buildPhase = ''
@@ -96,24 +102,25 @@
 
           meta = with pkgs.lib; {
             description = "Open-source coding-agent CLI for OpenAI, Gemini, DeepSeek, Ollama, and 200+ models";
-            homepage    = "https://github.com/Gitlawb/openclaude";
-            license     = licenses.mit;
-            maintainers = [];
-            platforms   = platforms.unix;
+            homepage = "https://github.com/Gitlawb/openclaude";
+            license = licenses.mit;
+            maintainers = [ ];
+            platforms = platforms.unix;
           };
         };
 
-      in {
+      in
+      {
         # ── Packages ──────────────────────────────────────────────────────────
         packages = {
-          default         = openclaude;
-          openclaude      = openclaude;
-          openclaude-deps = nodeDeps;   # build this first to get the deps hash
+          default = openclaude;
+          openclaude = openclaude;
+          openclaude-deps = nodeDeps; # build this first to get the deps hash
         };
 
         # ── App (nix run) ─────────────────────────────────────────────────────
         apps.default = {
-          type    = "app";
+          type = "app";
           program = "${openclaude}/bin/openclaude";
         };
 
