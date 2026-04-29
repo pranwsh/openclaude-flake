@@ -6,65 +6,15 @@ A Nix flake that packages [OpenClaude](https://github.com/Gitlawb/openclaude) â€
 
 ```bash
 # Run without installing
-nix run github:YOUR_USERNAME/openclaude-flake
+nix run github:pranwsh/openclaude-flake
 
 # Install into your profile
-nix profile install github:YOUR_USERNAME/openclaude-flake
+nix profile install github:pranwsh/openclaude-flake
 
 # Drop into a dev shell (bun + node + ripgrep)
-nix develop github:YOUR_USERNAME/openclaude-flake
+nix develop github:pranwsh/openclaude-flake
 ```
 
-## First-time setup (getting the hashes)
-
-Nix requires content hashes for all fetched content. You need to fill in two
-hashes in `flake.nix` before the build works.
-
-### 1. Get the source hash
-
-Replace the placeholder `src` hash with `lib.fakeHash`, then run:
-
-```bash
-nix build .#openclaude 2>&1 | grep "got:"
-```
-
-Paste the printed hash into the `src` block:
-
-```nix
-src = pkgs.fetchgit {
-  url = "https://node.gitlawb.com/...";
-  hash = "sha256-<hash from above>";
-};
-```
-
-### 2. Get the bun deps hash
-
-Build just the dependency derivation:
-
-```bash
-nix build .#openclaude-deps 2>&1 | grep "got:"
-```
-
-Paste the printed hash into `nodeDeps`:
-
-```nix
-outputHash = "sha256-<hash from above>";
-```
-
-### 3. Final build
-
-```bash
-nix build .#openclaude
-./result/bin/openclaude --version
-```
-
-Commit and push â€” everyone else can now use your flake with no manual steps.
-
-## Updating to a new version
-
-1. Update the `rev` (or remove it to track HEAD) and clear the hashes back to the placeholder.
-2. Repeat the two hash steps above.
-3. Commit the updated `flake.nix` and `flake.lock`.
 
 ## Model configuration
 
