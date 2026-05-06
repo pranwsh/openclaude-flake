@@ -12,6 +12,131 @@
       nixpkgs,
       flake-utils,
     }:
+    let
+      # Define the module once so it can be used for both Home Manager and NixOS
+      openclaudeModule =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        let
+          cfg = config.programs.openclaude;
+          yamlFormat = pkgs.formats.json { };
+        in
+        {
+          options.programs.openclaude = {
+            enable = lib.mkEnableOption "OpenClaude";
+
+            package = lib.mkOption {
+              type = lib.types.package;
+              default = self.packages.${pkgs.system}.default;
+              description = "The OpenClaude package to use.";
+            };
+
+            settings = lib.mkOption {
+              type = lib.types.submodule {
+                freeformType = yamlFormat.type;
+                options = {
+                  agentModels = lib.mkOption {
+                    type = lib.types.attrsOf (
+                      lib.types.submodule {
+                        freeformType = yamlFormat.type;
+                        options = {
+                          base_url = lib.mkOption {
+                            type = lib.types.nullOr lib.types.str;
+                            default = null;
+                            description = "Base URL for the model API.";
+                          };
+                          api_key = lib.mkOption {
+                            type = lib.types.nullOr lib.types.str;
+                            default = null;
+                            description = "API key for the model.";
+                          };
+                        };
+                      }
+                    );
+                    default = { };
+                    description = "Configuration for different agents and their models.";
+                  };
+
+                  agentRouting = lib.mkOption {
+                    type = lib.types.attrsOf lib.types.str;
+                    default = { };
+                    description = "Routing table for mapping agent types to specific models.";
+                  };
+
+                  theme = lib.mkOption {
+                    type = lib.types.nullOr lib.types.str;
+                    default = null;
+                    description = "Theme for the CLI (e.g., 'dark', 'light').";
+                  };
+
+                  mcpServers = lib.mkOption {
+                    type = lib.types.attrsOf (
+                      lib.types.submodule {
+                        freeformType = yamlFormat.type;
+                        options = {
+                          command = lib.mkOption {
+                            type = lib.types.str;
+                            description = "The command to run the MCP server.";
+                          };
+                          args = lib.mkOption {
+                            type = lib.types.listOf lib.types.str;
+                            default = [ ];
+                            description = "Arguments for the MCP server command.";
+                          };
+                          env = lib.mkOption {
+                            type = lib.types.attrsOf lib.types.str;
+                            default = { };
+                            description = "Environment variables for the MCP server.";
+                          };
+                        };
+                      }
+                    );
+                    default = { };
+                    description = "Model Context Protocol (MCP) servers.";
+                  };
+
+                  env = lib.mkOption {
+                    type = lib.types.attrsOf lib.types.str;
+                    default = { };
+                    description = "Environment variables to be included in the settings.";
+                  };
+
+                  dangerouslySkipPermissions = lib.mkOption {
+                    type = lib.types.nullOr lib.types.bool;
+                    default = null;
+                    description = "If true, skips confirmation prompts for tool execution.";
+                  };
+
+                  showCacheStats = lib.mkOption {
+                    type = lib.types.nullOr lib.types.bool;
+                    default = null;
+                    description = "Displays token usage and caching efficiency.";
+                  };
+
+                  extendedThinking = lib.mkOption {
+                    type = lib.types.nullOr lib.types.bool;
+                    default = null;
+                    description = "Enables/disables reasoning-heavy modes.";
+                  };
+                };
+              };
+              default = { };
+              description = "Configuration for ~/.claude/settings.json.";
+            };
+          };
+
+          config = lib.mkIf cfg.enable {
+            home.packages = [ cfg.package ];
+            home.file.".claude/settings.json".text = builtins.toJSON (
+              lib.filterAttrs (n: v: v != null) cfg.settings
+            );
+          };
+        };
+    in
     flake-utils.lib.eachDefaultSystem (
       system:
       let
@@ -22,7 +147,7 @@
         # real hash — paste it here, then build succeeds and is cached forever.
         src = pkgs.fetchgit {
           url = "https://node.gitlawb.com/z6MkqDnb7Siv3Cwj7pGJq4T5EsUisECqR8KpnDLwcaZq5TPr/openclaude.git";
-          hash = "sha256-OhNyDHgtfhNDb2hWMIkPiQ3SkiKkvp6IYfcSd8XqpGo=";
+          hash = "sha256-4bWAtzDsU7CB2BYsnbHDxKn+mH6zJe8BlQubVFeCrLw=";
           # Uncomment if the repo uses submodules:
           # fetchSubmodules = true;
         };
@@ -53,7 +178,8 @@
 
           outputHashMode = "recursive";
           outputHashAlgo = "sha256";
-          outputHash = "sha256-IFjSEccSOBnbuVCRGbR+rcmAEPCIhnpIX73pacAi5q4=";
+          outputHash = "sha256-sAR4YiMNPNSZHKzoca90O50/fIlIZir0euZ4WaTPEWw=";
+
         };
 
         # ── Step 2: build OpenClaude (sandboxed, uses pre-fetched deps) ───────
@@ -139,5 +265,17 @@
           '';
         };
       }
-    );
+    )
+    // {
+      # ── Modules ────────────────────────────────────────────────────────────
+      homeManagerModules.default = openclaudeModule;
+      homeManagerModules.openclaude = openclaudeModule;
+
+      # Also provide a NixOS module (though Home Manager is preferred for CLI tools)
+      nixosModules.default =
+        { pkgs, ... }:
+        {
+          environment.systemPackages = [ self.packages.${pkgs.system}.default ];
+        };
+    };
 }
