@@ -25,8 +25,6 @@ jobs:
       - name: Update nodeDeps hash
         run: |
           # Try to build nodeDeps. It will likely fail if src changed and node_modules changed.
-          # We use a dummy hash to force a failure if we want to be sure, 
-          # but let's just try building with current hash first.
           
           build_output=$(nix build .#openclaude-deps --no-link 2>&1 || true)
           

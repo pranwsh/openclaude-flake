@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    openclaude-src = {
+      url = "git+https://node.gitlawb.com/z6MkqDnb7Siv3Cwj7pGJq4T5EsUisECqR8KpnDLwcaZq5TPr/openclaude.git";
+      flake = false;
+    };
   };
 
   outputs =
@@ -11,6 +15,7 @@
       self,
       nixpkgs,
       flake-utils,
+      openclaude-src,
     }:
     let
       # Define the module once so it can be used for both Home Manager and NixOS
@@ -143,14 +148,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
 
         # ── Source ────────────────────────────────────────────────────────────
-        # After cloning, run `nix build` once; the error message will print the
-        # real hash — paste it here, then build succeeds and is cached forever.
-        src = pkgs.fetchgit {
-          url = "https://node.gitlawb.com/z6MkqDnb7Siv3Cwj7pGJq4T5EsUisECqR8KpnDLwcaZq5TPr/openclaude.git";
-          hash = "sha256-4bWAtzDsU7CB2BYsnbHDxKn+mH6zJe8BlQubVFeCrLw=";
-          # Uncomment if the repo uses submodules:
-          # fetchSubmodules = true;
-        };
+        src = openclaude-src;
 
         # ── Step 1: fetch bun dependencies (fixed-output derivation) ──────────
         # Fixed-output derivations (FODs) are the only derivations allowed
