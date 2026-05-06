@@ -1,0 +1,53 @@
+name: Update Flake and Hashes
+
+on:
+  schedule:
+    - cron: '0 0 */2 * *' # Every 2 days
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v25
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Update flake inputs
+        run: nix flake update
+
+      - name: Update nodeDeps hash
+        run: |
+          # Try to build nodeDeps. It will likely fail if src changed and node_modules changed.
+          # We use a dummy hash to force a failure if we want to be sure, 
+          # but let's just try building with current hash first.
+          
+          build_output=$(nix build .#openclaude-deps --no-link 2>&1 || true)
+          
+          if echo "$build_output" | grep -q "hash mismatch"; then
+            new_hash=$(echo "$build_output" | grep "got:" | sed 's/.*got:[[:space:]]*//')
+            old_hash=$(grep "outputHash =" flake.nix | sed 's/.*"\(.*\)";/\1/')
+            
+            if [ -n "$new_hash" ] && [ -n "$old_hash" ]; then
+              echo "Updating nodeDeps hash from $old_hash to $new_hash"
+              sed -i "s|$old_hash|$new_hash|g" flake.nix
+            fi
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add flake.nix flake.lock
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update flake inputs and hashes"
+            git push
+          fi
