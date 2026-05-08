@@ -130,13 +130,19 @@
                 };
               };
               default = { };
-              description = "Configuration for ~/.claude/settings.json.";
+              description = "Configuration for settings.json.";
             };
           };
 
           config = lib.mkIf cfg.enable {
             home.packages = [ cfg.package ];
             home.file.".claude/settings.json".text = builtins.toJSON (
+              lib.filterAttrs (n: v: v != null) cfg.settings
+            );
+            home.file.".openclaude/settings.json".text = builtins.toJSON (
+              lib.filterAttrs (n: v: v != null) cfg.settings
+            );
+            home.file.".config/openclaude/config.json".text = builtins.toJSON (
               lib.filterAttrs (n: v: v != null) cfg.settings
             );
           };
