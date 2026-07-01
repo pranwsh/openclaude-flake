@@ -20,11 +20,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1782467914,
-        "narHash": "sha256-pGvFkM8N0xEkIIXDe5YYfbEAvHrk4IxBrjB/x8OomhE=",
+        "lastModified": 1782723713,
+        "narHash": "sha256-oPXCU/SSUokcGaJREHibG1CBX3+s/W7orDWQOZDsEeQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e73de5be04e0eff4190a1432b946d469c794e7b4",
+        "rev": "b5aa0fbd538984f6e3d201be0005b4463d8b09f8",
         "type": "github"
       },
       "original": {
@@ -37,11 +37,11 @@
     "openclaude-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1782087777,
-        "narHash": "sha256-AZY4dxSGoonie8knjhxTNvQhwfOOUFNKd3Ju6Lw0rjY=",
+        "lastModified": 1782863810,
+        "narHash": "sha256-m2JzW+ww8JUxVdOvc/vkVYGrLUgxaE8XRpnXjfiHqqA=",
         "ref": "refs/heads/main",
-        "rev": "23bc49a01df40308bb2e863b74be57363dd36f2b",
-        "revCount": 884,
+        "rev": "bb61d8430bd14f75e7054f2099c2c1eb71c221d5",
+        "revCount": 963,
         "type": "git",
         "url": "https://node.gitlawb.com/z6MkqDnb7Siv3Cwj7pGJq4T5EsUisECqR8KpnDLwcaZq5TPr/openclaude.git"
       },
