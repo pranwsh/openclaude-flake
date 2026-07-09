@@ -37,11 +37,11 @@
     "openclaude-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1783297314,
-        "narHash": "sha256-263yvHU05L0eUlfteNlq5AszNzlRxueMbCuVm2wLJxI=",
+        "lastModified": 1783401995,
+        "narHash": "sha256-Adc/wCLVulxm4NHfxfqz1mG4Vodf5T1YphG7YmuwrXg=",
         "ref": "refs/heads/main",
-        "rev": "62fa7d48c158f40c085fd9ee1a78e315b868c44a",
-        "revCount": 988,
+        "rev": "338f9ad85fc93dce6b0702ebf9147f3b49a21e34",
+        "revCount": 1007,
         "type": "git",
         "url": "https://node.gitlawb.com/z6MkqDnb7Siv3Cwj7pGJq4T5EsUisECqR8KpnDLwcaZq5TPr/openclaude.git"
       },
